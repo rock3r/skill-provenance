@@ -1,0 +1,15 @@
+*.egg-info/
+*.py[cod]
+.DS_Store
+.agents/
+.idea/
+*-workspace/
+.mypy_cache/
+.pi/
+.plans/
+.pytest_cache/
+.ruff_cache/
+.venv/
+__pycache__/
+build/
+dist/

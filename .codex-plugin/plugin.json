@@ -1,0 +1,22 @@
+{
+  "name": "skill-provenance",
+  "version": "1.0.0",
+  "description": "Track and maintain provenance for agent skills: source material, attribution, licenses, and change detection.",
+  "author": {
+    "name": "Sebastiano Poggi",
+    "url": "https://github.com/rock3r"
+  },
+  "homepage": "https://github.com/rock3r/skill-provenance",
+  "repository": "https://github.com/rock3r/skill-provenance",
+  "license": "Apache-2.0",
+  "keywords": ["skills", "provenance", "attribution", "agent"],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Skill Provenance",
+    "shortDescription": "Maintain provenance sidecars for agent skills",
+    "longDescription": "A workflow skill for creating and updating skill-source.json provenance sidecars, checking whether upstream sources have changed, and folding external guidance into local skills.",
+    "developerName": "Sebastiano Poggi",
+    "category": "Productivity",
+    "websiteURL": "https://github.com/rock3r/skill-provenance"
+  }
+}

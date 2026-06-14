@@ -1,0 +1,24 @@
+{
+  "schemaVersion": 1,
+  "skill": "cl-review",
+  "sources": [
+    {
+      "type": "upstream-skill",
+      "role": "upstream-source",
+      "label": "CL Review upstream",
+      "url": "https://github.com/acme/skills/tree/main/cl-review",
+      "version": "2026-05-01",
+      "versionSource": "fetchDate",
+      "fetchedAt": "last Tuesday",
+      "license": "Apache-2.0",
+      "confidence": 0.9,
+      "diagnostics": "reviewed by model, looks good",
+      "check": {
+        "type": "github",
+        "repository": "acme/skills",
+        "path": "cl-review",
+        "trackingRef": "main"
+      }
+    }
+  ]
+}

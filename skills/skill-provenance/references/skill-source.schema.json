@@ -1,0 +1,369 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sebastiano.dev/schemas/skill-source.schema.json",
+  "title": "Skill source metadata sidecar",
+  "type": "object",
+  "additionalProperties": true,
+  "required": [
+    "schemaVersion",
+    "skill",
+    "sources"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "enum": [
+        1
+      ]
+    },
+    "skill": {
+      "type": "string",
+      "minLength": 1
+    },
+    "attribution": {
+      "type": "string",
+      "minLength": 1
+    },
+    "sources": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/source"
+      }
+    }
+  },
+  "allOf": [
+    {
+      "$ref": "#/$defs/clean-object"
+    },
+    {
+      "if": {
+        "properties": {
+          "sources": {
+            "contains": {
+              "properties": {
+                "role": {
+                  "enum": [
+                    "upstream-source",
+                    "supporting-reference"
+                  ]
+                }
+              },
+              "required": ["role"]
+            }
+          }
+        },
+        "required": ["sources"]
+      },
+      "then": {
+        "required": [
+          "attribution"
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "clean-value": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/clean-object"
+        },
+        {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/clean-value"
+          }
+        },
+        {
+          "not": {
+            "anyOf": [
+              {
+                "type": "object"
+              },
+              {
+                "type": "array"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "clean-object": {
+      "type": "object",
+      "properties": {
+        "gitEvidence": false,
+        "recentHistory": false,
+        "evidence": false,
+        "reviewNote": false,
+        "commitSubject": false,
+        "commitSubjects": false,
+        "confidence": false,
+        "confidenceLabel": false,
+        "diagnostics": false,
+        "reviewDiagnostics": false
+      },
+      "additionalProperties": {
+        "$ref": "#/$defs/clean-value"
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "type",
+        "role",
+        "label",
+        "version",
+        "versionSource",
+        "fetchedAt",
+        "license"
+      ],
+      "patternProperties": {
+        "^type$": {
+          "enum": [
+            "upstream-skill",
+            "upstream-reference",
+            "local-original-content"
+          ]
+        }
+      },
+      "properties": {
+        "role": {
+          "enum": [
+            "upstream-source",
+            "supporting-reference",
+            "original-content"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "url": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "versionSource": {
+          "enum": [
+            "frontmatter",
+            "gitCommit",
+            "fetchDate"
+          ]
+        },
+        "fetchedAt": {
+          "$comment": "Pattern enforces ISO shape only. Calendar validity (e.g. 2026-02-31) is enforced at runtime by the checker, not by this regex.",
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}([T ]\\d{2}:\\d{2}(:\\d{2}(\\.\\d+)?)?(Z|[+-]\\d{2}:?\\d{2})?)?$"
+        },
+        "license": {
+          "type": "string",
+          "minLength": 1
+        },
+        "check": {
+          "$ref": "#/$defs/check"
+        }
+      },
+      "allOf": [
+        {
+          "if": {
+            "properties": {
+              "role": {
+                "enum": [
+                  "original-content"
+                ]
+              }
+            },
+            "required": [
+              "role"
+            ]
+          },
+          "then": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "local-original-content"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "type": {
+                "enum": [
+                  "local-original-content"
+                ]
+              }
+            },
+            "required": [
+              "type"
+            ]
+          },
+          "then": {
+            "properties": {
+              "role": {
+                "enum": [
+                  "original-content"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "role": {
+                "enum": [
+                  "upstream-source",
+                  "supporting-reference"
+                ]
+              }
+            },
+            "required": [
+              "role"
+            ]
+          },
+          "then": {
+            "required": [
+              "url"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "versionSource": {
+                "enum": [
+                  "frontmatter"
+                ]
+              },
+              "check": {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "github"
+                    ]
+                  }
+                },
+                "required": [
+                  "type"
+                ]
+              }
+            },
+            "required": [
+              "versionSource",
+              "check"
+            ]
+          },
+          "then": {
+            "properties": {
+              "check": {
+                "required": [
+                  "frontmatterPath"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "url": {
+                "type": "string",
+                "pattern": "^https?://(www\\.)?github\\.com/[^/]+/[^/]+/(tree|blob)/[^/]+/[^/]+"
+              }
+            },
+            "required": [
+              "url"
+            ]
+          },
+          "then": {
+            "properties": {
+              "check": {
+                "properties": {
+                  "type": {
+                    "enum": [
+                      "github"
+                    ]
+                  }
+                },
+                "required": [
+                  "type",
+                  "repository",
+                  "path",
+                  "trackingRef"
+                ]
+              }
+            },
+            "required": [
+              "check"
+            ]
+          }
+        }
+      ]
+    },
+    "check": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": [
+        "type"
+      ],
+      "oneOf": [
+        {
+          "properties": {
+            "type": {
+              "enum": [
+                "github"
+              ]
+            },
+            "repository": {
+              "type": "string",
+              "pattern": "^[^/]+/[^/]+$"
+            },
+            "path": {
+              "type": "string",
+              "minLength": 1
+            },
+            "trackingRef": {
+              "type": "string",
+              "minLength": 1
+            },
+            "frontmatterPath": {
+              "type": "string",
+              "minLength": 1
+            },
+            "localCheckoutHint": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "repository",
+            "path",
+            "trackingRef"
+          ]
+        },
+        {
+          "properties": {
+            "type": {
+              "enum": [
+                "manual"
+              ]
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "reason"
+          ]
+        }
+      ]
+    }
+  }
+}

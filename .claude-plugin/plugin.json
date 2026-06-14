@@ -1,0 +1,12 @@
+{
+  "name": "skill-provenance",
+  "version": "1.0.0",
+  "description": "Track and maintain provenance for agent skills: source material, attribution, licenses, and change detection.",
+  "author": {
+    "name": "Sebastiano Poggi"
+  },
+  "homepage": "https://github.com/rock3r/skill-provenance",
+  "repository": "https://github.com/rock3r/skill-provenance",
+  "license": "Apache-2.0",
+  "skills": "./skills/"
+}

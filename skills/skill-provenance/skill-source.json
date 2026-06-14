@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "skill": "skill-provenance",
+  "sources": [
+    {
+      "type": "local-original-content",
+      "role": "original-content",
+      "label": "Portable workflow for maintaining skill source metadata",
+      "version": "2026-06-15",
+      "versionSource": "fetchDate",
+      "fetchedAt": "2026-06-15",
+      "license": "Apache-2.0"
+    }
+  ]
+}

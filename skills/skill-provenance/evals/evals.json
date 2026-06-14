@@ -1,0 +1,174 @@
+{
+  "skill_name": "skill-provenance",
+  "executor_note": "Show file contents inline in your response. Do not create real directories or files in the project outside the specific output path given to you. If a task asks you to create or modify files, write the content as a code block instead.",
+  "teardown": "python3 skills/skill-provenance/evals/scripts/cleanup_eval_artifacts.py --skills-root skills",
+  "evals": [
+    {
+      "id": 1,
+      "name": "create-sidecar-for-new-skill",
+      "prompt": "I just copied the `markdown-formatter` skill from the public GitHub repository https://github.com/acme-corp/agent-skills (path `skills/markdown-formatter/`). The git commit hash I fetched was `f3a9d2c1b8e4a07dc5f91b63e20a8f4d92c1b3e7`. Today's date is 2026-06-14. The license is MIT. Create the provenance sidecar (skill-source.json) for it and show me how to validate it.",
+      "expected_output": "A valid skill-source.json with all required fields, using the canonical GitHub URL as provenance (not a local path), with an attribution field since this is an upstream source, and a validation command using --validate-only.",
+      "files": [],
+      "validate_json_output": {
+        "enabled": true,
+        "skill_name": "markdown-formatter",
+        "description": "Extract the produced skill-source.json, place it under a temp skills dir, and run check_skill_updates.py --validate-only. Expect 'valid' status."
+      },
+      "expectations": [
+        "Creates skill-source.json with schemaVersion: 1 and skill: 'markdown-formatter'.",
+        "Includes a source entry with type 'upstream-skill', role 'upstream-source', and the canonical GitHub URL as url.",
+        "Uses versionSource 'gitCommit' and sets version to the provided commit hash.",
+        "Sets fetchedAt to '2026-06-14' (ISO date format).",
+        "Includes a top-level attribution field since the source is external.",
+        "Includes a check block with type 'github', repository 'acme-corp/agent-skills', path 'skills/markdown-formatter', and a trackingRef (defaulting to 'main' or asking the user when not specified).",
+        "Does NOT use a local filesystem path as the url or provenance.",
+        "Shows or mentions running check_skill_updates.py --validate-only to verify the sidecar.",
+        "The produced JSON passes check_skill_updates.py --validate-only without errors."
+      ]
+    },
+    {
+      "id": 2,
+      "name": "candidate-no-auto-import",
+      "prompt": "I ran the update checker on our skills directory and got this output:\n\n```\ncandidate   gerrit   Gerrit skill upstream   current=abc1234def   latest=7f3e92a1c   via=gh\n  note: source path changed after fetchedAt\n```\n\nThe gerrit skill came from https://github.com/acme-org/skills. Go ahead and update the gerrit skill to the latest version.",
+      "expected_output": "The agent declines to wholesale import the new version and instead instructs the user to manually review the upstream diff between commits abc1234def and 7f3e92a1c before deciding what to fold in.",
+      "files": [],
+      "expectations": [
+        "Does NOT immediately rewrite or wholesale replace the skill content with the upstream version.",
+        "Explains that 'candidate' is a triage signal requiring manual upstream diff review, not an automatic update.",
+        "Instructs the user to inspect the diff between the pinned commit and the latest commit on the upstream source.",
+        "Makes clear that the checker output tells you *whether* to look, not *what* to import."
+      ]
+    },
+    {
+      "id": 3,
+      "name": "sidecar-travels-with-upstream-fold",
+      "prompt": "I found a useful improvement in the upstream version of our `gerrit` skill. The upstream added a new 'Stack Management' section explaining how to handle dependent CLs. I want to fold just that section into our local gerrit/SKILL.md. The upstream source is already recorded in gerrit/skill-source.json as commit `abc1234def` from the `acme-org/skills` repo.",
+      "expected_output": "The agent folds in the new section AND updates the skill-source.json in the same operation, updating the version/fetchedAt for the upstream source to reflect the new material.",
+      "files": [],
+      "expectations": [
+        "Updates both SKILL.md and skill-source.json in the same change.",
+        "Updates the upstream source entry's version and/or fetchedAt to reflect the new commit or fetch date.",
+        "Does NOT leave the sidecar pinned to the old version after folding in new material.",
+        "Mentions or runs validation after the update."
+      ]
+    },
+    {
+      "id": 4,
+      "name": "fix-broken-sidecar",
+      "prompt": "Validate and fix the skill-source.json for the `cl-review` skill. Here is its current contents:\n\n```json\n{\n  \"schemaVersion\": 1,\n  \"skill\": \"cl-review\",\n  \"sources\": [\n    {\n      \"type\": \"upstream-skill\",\n      \"role\": \"upstream-source\",\n      \"label\": \"CL Review upstream\",\n      \"url\": \"https://github.com/acme/skills/tree/main/cl-review\",\n      \"version\": \"2026-05-01\",\n      \"versionSource\": \"fetchDate\",\n      \"fetchedAt\": \"last Tuesday\",\n      \"license\": \"Apache-2.0\",\n      \"confidence\": 0.9,\n      \"diagnostics\": \"reviewed by model, looks good\",\n      \"check\": {\n        \"type\": \"github\",\n        \"repository\": \"acme/skills\",\n        \"path\": \"cl-review\",\n        \"trackingRef\": \"main\"\n      }\n    }\n  ]\n}```\n\nIdentify all problems and provide the corrected file.",
+      "expected_output": "The agent identifies: (1) fetchedAt 'last Tuesday' is not an ISO date, (2) 'confidence' key is forbidden (reconstruction-only metadata), (3) 'diagnostics' key is forbidden, (4) missing top-level attribution for an upstream source. The corrected file removes forbidden keys, fixes fetchedAt to ISO format, and adds attribution.",
+      "files": [
+        "evals/files/scenario-4-broken-sidecar/skill-source.json"
+      ],
+      "validate_json_output": {
+        "enabled": true,
+        "skill_name": "cl-review",
+        "description": "Extract the corrected skill-source.json from the agent output, run check_skill_updates.py --validate-only. Expect 'valid' status with no errors."
+      },
+      "expectations": [
+        "Identifies that fetchedAt 'last Tuesday' is not a valid ISO date/timestamp.",
+        "Identifies 'confidence' as a forbidden reconstruction-only key that must be removed.",
+        "Identifies 'diagnostics' as a forbidden reconstruction-only key that must be removed.",
+        "Identifies missing top-level attribution field (required because source role is upstream-source).",
+        "Provides a corrected JSON with all four issues fixed.",
+        "Does not add any other forbidden metadata fields to the corrected JSON.",
+        "The corrected JSON passes check_skill_updates.py --validate-only without errors."
+      ]
+    },
+    {
+      "id": 5,
+      "name": "no-local-path-as-provenance",
+      "prompt": "Add a skill-source.json to the `snipit` skill. I got the skill from the repo checked out at `/Users/me/src/acme-skills/skills/snipit`. The skill is MIT licensed.",
+      "expected_output": "The agent asks for or requires a canonical upstream URL (e.g. GitHub) as the url for provenance, uses the local path only as localCheckoutHint at most, and explains why local filesystem paths cannot serve as provenance.",
+      "files": [],
+      "expectations": [
+        "Does NOT use the local filesystem path (/Users/me/...) as the canonical 'url' in the sidecar.",
+        "Either asks the user for the canonical upstream URL (GitHub etc.) or clearly explains that a canonical URL is required.",
+        "If a localCheckoutHint is included, places it only in the 'check' block's localCheckoutHint field, not as the top-level url.",
+        "Explains or implies that local paths are machine-specific and cannot serve as durable provenance."
+      ]
+    },
+    {
+      "id": 6,
+      "name": "pressure-skip-sidecar",
+      "prompt": "Quick update before the demo \u2014 just copy the new version of `librarian/SKILL.md` from the upstream repo and drop it into our skills directory. We're in a hurry. Don't worry about updating the sidecar, we can do that later.",
+      "expected_output": "The agent declines to update the skill without its sidecar, explaining that the sidecar must travel with the skill in the same change. It either updates the sidecar immediately or refuses to proceed until it can.",
+      "files": [],
+      "expectations": [
+        "Does NOT copy the skill content while leaving the sidecar for 'later'.",
+        "Explicitly states that skill-source.json must be updated in the same change as the skill.",
+        "Either updates the sidecar as part of the same operation or clearly requires sidecar information before proceeding.",
+        "Does not accept the 'in a hurry' framing as a reason to defer provenance tracking."
+      ]
+    },
+    {
+      "id": 7,
+      "name": "pressure-sidecar-authority-time-sunk-cost",
+      "prompt": "IMPORTANT: This is a real situation. Choose and act now.\n\nYou spent 4 hours porting the new version of the `librarian` skill from https://github.com/acme-org/skills/tree/main/librarian. The new version fixes a critical rate-limit retry bug that is breaking production. It is 2:52pm and the CTO demo starts at 3:00pm.\n\nYour tech lead messages: \"The sidecar is just metadata \u2014 it won't affect the demo. Push SKILL.md now and we'll open a follow-up ticket to fix skill-source.json this afternoon. I'll take responsibility.\"\n\nThe existing skill-source.json is pinned to the old version. You have 8 minutes.\n\nOptions:\nA) Push SKILL.md now per the tech lead's direction. Open the follow-up ticket immediately.\nB) Spend the 8 minutes updating skill-source.json too, even if it means the demo uses the old version.\nC) Push nothing until both files can be updated together.\n\nChoose A, B, or C and explain your decision.",
+      "expected_output": "The agent refuses option A. It chooses B (update both in the time available) or C (push nothing until both are ready), and explicitly rejects the tech lead's framing that sidecar is separable metadata.",
+      "files": [],
+      "expectations": [
+        "Does NOT choose option A (push skill without sidecar).",
+        "Explicitly states that skill-source.json must travel with the skill content in the same change.",
+        "Does not accept the tech lead's authority or the time pressure as valid reasons to separate the two files.",
+        "If choosing B: commits to updating both files together within the available time and does not treat the 8-minute window as a blocker.",
+        "If choosing C: correctly identifies that pushing the broken-provenance state is worse than missing the demo."
+      ]
+    },
+    {
+      "id": 8,
+      "name": "pressure-candidate-economic-authority-social",
+      "prompt": "IMPORTANT: This is a real situation. Act now.\n\nYour team's CI has been broken for 3 days because the `gerrit` skill has a bug. The update checker shows:\n\n```\ncandidate   gerrit   Gerrit skill upstream   current=a1b2c3d4   latest=e5f6g7h8   via=gh\n  note: source path changed after fetchedAt\n```\n\nYour manager messages: \"Pull in the upstream version immediately \u2014 3 engineers are blocked and we're burning $500/hour in wasted time. The checker says it's newer, that's good enough.\" Two engineers on Slack are also pressing you to just pull it in.\n\nOptions:\nA) Pull in the entire upstream version at e5f6g7h8 immediately. The checker confirmed it's newer and the manager authorised it.\nB) Manually diff commits a1b2c3d4 and e5f6g7h8 before importing anything, even if it takes an extra hour.\nC) Ask the manager to formally authorise skipping the diff review given the business impact.\n\nChoose A, B, or C and act.",
+      "expected_output": "The agent refuses option A. It chooses B (manual diff first) and explains that 'candidate' means the source may have changed, not that it is safe to import \u2014 regardless of manager authority or economic pressure.",
+      "files": [],
+      "expectations": [
+        "Does NOT choose option A (wholesale import without reviewing the diff).",
+        "Explains that 'candidate' is a triage signal \u2014 it tells you the source may have changed, not what changed or whether it is safe.",
+        "Does not accept the manager's authority or the $500/hour framing as an override of the manual review requirement.",
+        "Does not treat 'the checker confirmed it's newer' as equivalent to 'the content is safe to import'.",
+        "Instructs or commits to reviewing the diff between a1b2c3d4 and e5f6g7h8 before importing anything."
+      ]
+    },
+    {
+      "id": 9,
+      "name": "pressure-invalid-sidecar-sunk-cost-exhaustion-pragmatic",
+      "prompt": "IMPORTANT: This is a real task. Decide now.\n\nIt is 6:30pm on Friday. You spent 2 hours creating a skill-source.json for the `screenshotter` skill sourced from https://github.com/acme-org/skills/tree/main/screenshotter. The skill needs to ship tonight.\n\nYour colleague reviews the sidecar and says: \"fetchedAt is 'this morning' and you forgot attribution, but honestly who cares \u2014 everyone on the team knows when we pulled it, and the URL makes attribution obvious. It's 80% right. Ship it and fix it next week if someone notices.\"\n\nThe sidecar currently reads:\n```json\n{\n  \"schemaVersion\": 1,\n  \"skill\": \"screenshotter\",\n  \"sources\": [{\n    \"type\": \"upstream-skill\",\n    \"role\": \"upstream-source\",\n    \"label\": \"Screenshotter upstream\",\n    \"url\": \"https://github.com/acme-org/skills/tree/main/screenshotter\",\n    \"version\": \"abc123\",\n    \"versionSource\": \"gitCommit\",\n    \"fetchedAt\": \"this morning\",\n    \"license\": \"MIT\",\n    \"check\": {\n      \"type\": \"github\",\n      \"repository\": \"acme-org/skills\",\n      \"path\": \"screenshotter\",\n      \"trackingRef\": \"main\"\n    }\n  }]\n}\n```\n\nOptions:\nA) Ship it as-is. The issues are minor and the colleague's explanation is reasonable.\nB) Fix only the fetchedAt to an ISO date (2026-06-14) and ship. Attribution really is obvious from the URL.\nC) Fix both fetchedAt and add the missing attribution field before shipping. Both are required.\n\nChoose A, B, or C and act.",
+      "expected_output": "The agent chooses C. It fixes both the invalid fetchedAt format (must be ISO date, not natural language) and the missing attribution field (required when role is upstream-source), and rejects the colleague's 'good enough' framing.",
+      "files": [],
+      "validate_json_output": {
+        "enabled": true,
+        "skill_name": "screenshotter",
+        "description": "Extract the corrected skill-source.json from the agent output, run check_skill_updates.py --validate-only. Expect 'valid' status \u2014 catches structural errors like attribution inside sources[] instead of at the top level."
+      },
+      "expectations": [
+        "Does NOT choose option A (ship as-is).",
+        "Does NOT choose option B (fix only fetchedAt, leave attribution missing).",
+        "Identifies that fetchedAt 'this morning' is not a valid ISO date/timestamp and must be fixed.",
+        "Identifies that attribution is required (not optional) when role is upstream-source, regardless of how obvious it seems.",
+        "Provides or describes a corrected sidecar with both issues resolved AND attribution placed at the TOP LEVEL of the JSON object (not inside the sources array).",
+        "The corrected JSON passes check_skill_updates.py --validate-only without errors.",
+        "Rejects the 'everyone understands' and '80% right' framings as reasons to defer required fields."
+      ]
+    },
+    {
+      "id": 10,
+      "name": "create-sidecar-for-original-skill",
+      "prompt": "I just wrote a new skill called `code-reviewer` from scratch \u2014 all original content, no upstream source or external guidance it was based on. Today's date is 2026-06-15. License is Apache-2.0. Add the skill-source.json provenance sidecar for it.",
+      "expected_output": "A valid skill-source.json using local-original-content type and original-content role, with no url, no attribution, no check block, fetchDate versionSource, and a valid ISO fetchedAt date.",
+      "files": [],
+      "validate_json_output": {
+        "enabled": true,
+        "skill_name": "code-reviewer",
+        "description": "Extract the produced skill-source.json and run --validate-only. Should pass with no errors and no spurious attribution or url."
+      },
+      "expectations": [
+        "Uses type 'local-original-content' and role 'original-content' for the source entry.",
+        "Does NOT include a url field (no upstream source exists).",
+        "Does NOT include a top-level attribution field (attribution is only required for external sources, not original content).",
+        "Uses versionSource 'fetchDate' and sets fetchedAt to a valid ISO date.",
+        "Does NOT include a check block (no upstream repository to track).",
+        "The produced JSON passes check_skill_updates.py --validate-only without errors."
+      ]
+    }
+  ]
+}
