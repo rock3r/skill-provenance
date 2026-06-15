@@ -1,7 +1,9 @@
 *.egg-info/
 *.py[cod]
 .DS_Store
-.agents/
+.agents/*
+!.agents/plugins/
+!.agents/plugins/marketplace.json
 .idea/
 *-workspace/
 .mypy_cache/

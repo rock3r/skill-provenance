@@ -17,6 +17,12 @@
     "longDescription": "A workflow skill for creating and updating skill-source.json provenance sidecars, checking whether upstream sources have changed, and folding external guidance into local skills.",
     "developerName": "Sebastiano Poggi",
     "category": "Productivity",
-    "websiteURL": "https://github.com/rock3r/skill-provenance"
+    "capabilities": ["Read", "Write"],
+    "websiteURL": "https://github.com/rock3r/skill-provenance",
+    "defaultPrompt": [
+      "Check whether my skills have upstream updates.",
+      "Create a skill-source.json sidecar for this skill.",
+      "Validate provenance sidecars before publishing."
+    ]
   }
 }

@@ -1,12 +1,16 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "skill-provenance",
+  "displayName": "Skill Provenance",
   "version": "1.0.0",
   "description": "Track and maintain provenance for agent skills: source material, attribution, licenses, and change detection.",
   "author": {
-    "name": "Sebastiano Poggi"
+    "name": "Sebastiano Poggi",
+    "url": "https://github.com/rock3r"
   },
   "homepage": "https://github.com/rock3r/skill-provenance",
   "repository": "https://github.com/rock3r/skill-provenance",
   "license": "Apache-2.0",
+  "keywords": ["skills", "provenance", "attribution", "agent"],
   "skills": "./skills/"
 }

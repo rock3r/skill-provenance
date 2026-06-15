@@ -1,0 +1,17 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-marketplace.json",
+  "name": "skill-provenance",
+  "description": "Skill provenance sidecars for agent skills.",
+  "owner": {
+    "name": "Sebastiano Poggi",
+    "url": "https://github.com/rock3r"
+  },
+  "plugins": [
+    {
+      "name": "skill-provenance",
+      "description": "Track and maintain provenance for agent skills: source material, attribution, licenses, and change detection.",
+      "source": "./",
+      "category": "productivity"
+    }
+  ]
+}

@@ -17,19 +17,35 @@ You can install the skill in many modes, including:
 
 ### Claude Code
 
-The repo root contains a Claude Code plugin manifest (`.claude-plugin/plugin.json`). Add it as a plugin
-directly from the GitHub repo:
+The repo ships a Claude Code plugin manifest (`.claude-plugin/plugin.json`) and marketplace
+(`.claude-plugin/marketplace.json`). Add the marketplace from GitHub, then install the plugin:
 
 ```bash
-codex plugin marketplace add rock3r/skill-provenance
+claude plugin marketplace add rock3r/skill-provenance
+claude plugin install skill-provenance@skill-provenance
+```
+
+Validate locally:
+
+```bash
+claude plugin validate .
 ```
 
 ### OpenAI Codex
 
-The repo root contains a Codex plugin manifest (`.codex-plugin/plugin.json`). Add it from the GitHub repo:
+The repo ships a Codex plugin manifest (`.codex-plugin/plugin.json`) and marketplace
+(`.agents/plugins/marketplace.json`). Add the marketplace from GitHub, then install the plugin:
 
 ```bash
 codex plugin marketplace add rock3r/skill-provenance
+codex plugin add skill-provenance@skill-provenance
+```
+
+Validate locally with OpenAI's plugin validator:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/openai/codex/main/codex-rs/skills/src/assets/samples/plugin-creator/scripts/validate_plugin.py -o /tmp/validate_plugin.py
+python3 /tmp/validate_plugin.py .
 ```
 
 Both manifests point `skills` at `./skills/`, so each platform discovers `skills/skill-provenance/SKILL.md`
