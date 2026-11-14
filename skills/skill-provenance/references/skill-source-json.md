@@ -46,11 +46,13 @@ External sources are entries whose `role` is `upstream-source` or `supporting-re
 
 Choose `version` and `versionSource` with this precedence:
 
-1. Use `frontmatter` when the source skill has a stable frontmatter version. The checker reads `metadata.version` per the agentskills.io spec, falling back to a top-level `version:` key for older skills.
+1. Use `frontmatter` when the source skill has a stable frontmatter version. The checker reads `metadata.version` per
+   the agentskills.io spec, falling back to a top-level `version:` key for older skills.
 2. Use `gitCommit` when the source is in a git repository and no frontmatter version exists.
 3. Use `fetchDate` when no more precise comparable version is available.
 
-When using `frontmatter`, the checker also reads `metadata.author` from the upstream SKILL.md and includes it as `upstreamAuthor` in the report row. Use that value to write the top-level `attribution` field in the sidecar.
+When using `frontmatter`, the checker also reads `metadata.author` from the upstream SKILL.md and includes it as
+`upstreamAuthor` in the report row. Use that value to write the top-level `attribution` field in the sidecar.
 
 Use an ISO date or timestamp in `fetchedAt`. Date-only values are allowed, but same-day upstream changes may be reported
 as `unknown` because the checker cannot disambiguate ordering.
