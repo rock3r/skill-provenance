@@ -9,11 +9,13 @@ The skill helps agents:
 - keep provenance in a portable JSON format that travels with the skill folder;
 - validate sidecars against a documented schema before publishing or sharing skills.
 
+## Installation
+
 You can install the skill in many modes, including:
 
-* Clone the repo and copy the `skills/skill-provenance/` directory into your agent skills directory, for example
+- Clone the repo and copy the `skills/skill-provenance/` directory into your agent skills directory, for example
   `.agents/skills/skill-provenance/`.
-* Use `npx skills add rock3r/skill-provenance` and similar mechanisms
+- Use `npx skills add rock3r/skill-provenance` and similar mechanisms
 
 ### Claude Code
 
@@ -76,9 +78,9 @@ Apache License 2.0. See [`LICENSE`](LICENSE).
 > Licensed under the Apache License, Version 2.0 (the "License");
 > you may not use this file except in compliance with the License.
 > You may obtain a copy of the License at
-> 
->   http://www.apache.org/licenses/LICENSE-2.0
-> 
+>
+> <http://www.apache.org/licenses/LICENSE-2.0>
+>
 > Unless required by applicable law or agreed to in writing, software
 > distributed under the License is distributed on an "AS IS" BASIS,
 > WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.

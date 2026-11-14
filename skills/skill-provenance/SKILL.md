@@ -5,7 +5,7 @@ description: >
   whether upstream sources have changed, or folding external guidance into a local skill.
 license: Apache-2.0
 metadata:
-  version: "1.0.0"
+  version: "1.0.1"
   author: "Sebastiano Poggi"
 ---
 
@@ -38,23 +38,23 @@ python3 .agents/skills/skill-provenance/scripts/check_skill_updates.py --skills-
 ```
 
 - Treat the report as a triage signal, not as an update decision.
-    - `up-to-date` means a commit-pinned, frontmatter-pinned, or fetch-date source matches the latest cheap signal.
-    - `candidate` means the source appears to have changed and needs manual upstream diff review.
-    - `local-original` means original local material, not an upstream update candidate.
-    - `skipped` means the source is intentionally manual, uncheckable, or pinned by a non-comparable signal.
-    - `unknown` means the check could not reach a conclusion. Causes include: GitHub and local checkout fallback both
-      failed (retry if transient); a date-only `fetchedAt` cannot disambiguate a same-day upstream change (use a full
-      ISO timestamp to resolve); or a local checkout fallback found the latest commit but could not determine its date
-      (switch to `gitCommit` versionSource or provide network access).
-    - `error` means the sidecar violates the required shape and should be fixed before update decisions.
+  - `up-to-date` means a commit-pinned, frontmatter-pinned, or fetch-date source matches the latest cheap signal.
+  - `candidate` means the source appears to have changed and needs manual upstream diff review.
+  - `local-original` means original local material, not an upstream update candidate.
+  - `skipped` means the source is intentionally manual, uncheckable, or pinned by a non-comparable signal.
+  - `unknown` means the check could not reach a conclusion. Causes include: GitHub and local checkout fallback both
+    failed (retry if transient); a date-only `fetchedAt` cannot disambiguate a same-day upstream change (use a full
+    ISO timestamp to resolve); or a local checkout fallback found the latest commit but could not determine its date
+    (switch to `gitCommit` versionSource or provide network access).
+  - `error` means the sidecar violates the required shape and should be fixed before update decisions.
 - For each candidate update, inspect the source material directly. Never import upstream guidance wholesale just because
   the cheap checker reported a newer version.
 - If you fold in new material, update `skill-source.json`:
-    - add a `sources` entry for every new upstream or supporting reference;
-    - keep canonical repository or documentation URLs as provenance;
-    - use `localCheckoutHint` only as an optional inspection aid, not as provenance;
-    - add or revise top-level `attribution` whenever external material exists;
-    - keep reconstruction-only evidence out of the JSON.
+  - add a `sources` entry for every new upstream or supporting reference;
+  - keep canonical repository or documentation URLs as provenance;
+  - use `localCheckoutHint` only as an optional inspection aid, not as provenance;
+  - add or revise top-level `attribution` whenever external material exists;
+  - keep reconstruction-only evidence out of the JSON.
 - Run validation before finalizing:
 
 ```bash
